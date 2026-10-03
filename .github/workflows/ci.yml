@@ -1,0 +1,19 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dart: ["3.4.4", stable]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.dart }}
+      - run: dart pub get
+      - run: dart analyze --fatal-infos
+      - run: dart test
+      - run: dart compile js example/main.dart -o /tmp/pubb-example.js

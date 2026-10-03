@@ -1,0 +1,12 @@
+name: pubb
+description: Pubb realtime client for Flutter and Dart, including web, mobile and desktop.
+version: 0.2.0
+repository: https://github.com/pubbio/sdk-dart
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+dependencies:
+  http: ^1.5.0
+  web_socket_channel: ^3.0.3
+dev_dependencies:
+  test: ^1.25.8
+  lints: ^4.0.0
