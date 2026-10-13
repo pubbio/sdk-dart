@@ -91,3 +91,10 @@ dart compile js example/main.dart -o /tmp/pubb-example.js
 ```
 
 Tests cover the real local WebSocket/HTTP protocol and connection lifecycle. MIT.
+
+## Subscription protocol compatibility
+
+This client requests `protocol=2` when opening its WebSocket connection and handles
+`pubb:subscription_succeeded`. It still accepts the legacy acknowledgement from
+older servers. Current pubb servers send one acknowledgement per subscription:
+existing clients without `protocol=2` keep their legacy wire event.

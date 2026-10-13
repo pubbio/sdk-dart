@@ -380,6 +380,6 @@ class Pubb {
         host: host.host,
         port: host.hasPort ? host.port : null,
         path: '/socket',
-        queryParameters: {'appKey': key});
+        queryParameters: {'appKey': key, 'protocol': '2'});
   }
 }

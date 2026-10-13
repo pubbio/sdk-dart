@@ -9,7 +9,7 @@ class TestServer {
   final sockets = <WebSocket>[];
   final frames = <Map<String, dynamic>>[];
   final paths = <Uri>[];
-  bool handshake = true, rejectSockets = false;
+  bool handshake = true, rejectSockets = false, legacy = false;
   Future<void> start() async {
     server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     server.listen((request) async {
@@ -27,7 +27,7 @@ class TestServer {
           final channel = frame['channel'] as String;
           send(
               socket,
-              'pusher_internal:subscription_succeeded',
+              legacy ? 'pusher_internal:subscription_succeeded' : 'pubb:subscription_succeeded',
               channel.startsWith('presence-')
                   ? {
                       'presence': {
@@ -93,6 +93,7 @@ void main() {
     expect(pubb.state, PubbConnectionState.connected);
     expect(pubb.socketId, '1.1');
     expect(server.paths.single.path, '/socket');
+    expect(server.paths.single.queryParameters['protocol'], '2');
     expect(server.paths.single.queryParameters['appKey'], 'public +/key');
     expect(server.frames.single, {'action': 'subscribe', 'channel': 'updates'});
     server.sockets.single.add(jsonEncode({
@@ -104,6 +105,18 @@ void main() {
     }));
     expect(await message, {'text': 'Hello'});
     expect(channel.subscribed, isTrue);
+  });
+
+  test('legacy server still acknowledges a protocol 2 client once', () async {
+    server.legacy = true;
+    final channel = pubb.subscribe('updates');
+    var callbacks = 0;
+    final listener = channel.on('pubb:subscription_succeeded').listen((_) => callbacks++);
+    pubb.connect();
+    await until(() => channel.subscribed);
+    await Future<void>.delayed(const Duration(milliseconds: 30));
+    expect(callbacks, 1);
+    await listener.cancel();
   });
 
   test('presence state and aliases', () async {
